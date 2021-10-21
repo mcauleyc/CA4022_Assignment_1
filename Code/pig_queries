@@ -1,0 +1,51 @@
+## a)
+# most ratings
+group_m = group all_data by m_movieId;
+count_m = FOREACH group_m GENERATE group as movieId, COUNT(all_data) as cnt, flatten(all_data.title.$0) as title;
+distinct_top = distinct count_m;
+ordered_top = ORDER distinct_top BY cnt DESC;
+top_lt = limit ordered_top 10;
+dump top_lt;
+# (318,329,Shawshank Redemption, The)
+
+## b)
+### i)
+# only 5s
+avg_r = FOREACH group_m GENERATE group as movieId, COUNT(all_data) as cnt, AVG(all_data.rating) as avg_rating;
+avg_all_5s = FILTER avg_r BY avg_rating == 5.0;
+ordered_avg_5s = order avg_all_5s by cnt desc;
+all_5s_lt = limit ordered_avg_5s 10;
+dump all_5s_lt;
+# (78836,2,5.0)
+
+### ii)
+# most 4s and 5s
+all_4s_5s = FILTER all_data BY (rating == 5.0 OR rating == 4.0);
+group_4s_5s = group all_4s_5s by m_movieId;
+count_4s_5s = FOREACH group_4s_5s GENERATE group as movieId, COUNT(all_4s_5s) as cnt, flatten(all_4s_5s.title.$0) as title;
+distinct_4s_5s = distinct count_4s_5s;
+ordered_4s_5s = ORDER distinct_4s_5s BY  DESC;
+top_4s_5s = limit ordered_4s_5s 10;
+dump top_4s_5s;
+# (318,225,Shawshank Redemption, The)
+
+### iii)
+# majority of 5s
+all_5s = FILTER all_data BY rating == 5.0;
+group_5s = group all_5s by m_movieId;
+count_5s = FOREACH group_5s GENERATE group as movieId, COUNT(all_5s) as cnt, flatten(all_5s.title.$0) as title;
+distinct_5s = distinct count_5s;
+ordered_5s = ORDER distinct_5s BY cnt DESC;
+top_5s = limit ordered_5s 10;
+dump top_5s;
+# (318,153,Shawshank Redemption, The)
+
+## c)
+# user with highest avg rating
+group_r = group all_data by userId;
+count_r = FOREACH group_r GENERATE group as userId, COUNT(all_data) as cnt, AVG(all_data.rating.$0) as avg_rating;
+distinct_top_r = distinct count_r;
+ordered_top_r = ORDER distinct_top_r BY avg_rating DESC;
+rtop_lt = limit ordered_top_r 10;
+dump rtop_lt;
+# (53,20,5.0)

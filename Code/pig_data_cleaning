@@ -1,0 +1,16 @@
+# movies.csv
+mdata = LOAD 'hdfs:/user/cliodhna/ml-latest-small/movies.csv' USING org.apache.pig.piggybank.storage.CSVExcelStorage() AS (movieId:int, full_title:chararray, genres:chararray);  
+mdata = FILTER mdata BY movieId is not null;  
+
+movies = FOREACH mdata GENERATE movieId, REGEX_EXTRACT(REPLACE(full_title, ';', '-'), '([\\s\\S]+)\\b(?: |$)', 1) as title, REGEX_EXTRACT(full_title, '\\((\\d{4})\\)', 1) as year, STRSPLIT(genres, '\\|') as genres;
+
+# ratings.csv
+rdata = LOAD 'hdfs:/user/cliodhna/ml-latest-small/ratings.csv' USING org.apache.pig.piggybank.storage.CSVExcelStorage() AS (userId:int, movieId:int, rating:float, timestamp:chararray);
+ratings = FILTER rdata BY movieId is not null;
+
+# join
+all_data = JOIN movies BY movieId, ratings BY movieId;
+all_data = foreach all_data generate $0 as m_movieId, $1 as title, $2 as year, $3 as genres, $4 as userId, $5 as r_movieId, $6 as rating, $7 as timestamp;
+
+# stored
+STORE all_data INTO ' hdfs:/user/cliodhna/pig_output/4' USING org.apache.pig.piggybank.storage.CSVExcelStorage(';');

@@ -1,0 +1,26 @@
+## a)
+# number of ratings for each star level
+select rating, count(*) as cnt from movie_rating
+group by rating
+order by rating desc;
+# 
+
+## b)
+# most popular rating
+select rating, count(*) as cnt from movie_rating
+group by rating
+order by cnt desc;
+# 4.0
+
+## c)
+# rating distribution by genre grouped 
+select genres, count(*) as cnt from movie_rating
+group by genres
+order by cnt desc;
+# comedy, drama, romcom
+
+# rating distribution by genre not grouped 
+select count(*) as cnt from movie_rating
+where genres like '%War%';
+# Comedy: 39053, Drama: 41928, Thriller : 26452, Horror: 7291, Romance: 18124, Crime : 16681, Action: 30635, Adventure: 24161, Fantasy: 11834, Sci-Fi: 17243, Animation: 6988, Children: 9208, Mystery: 7674, War: 4859
+
